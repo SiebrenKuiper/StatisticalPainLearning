@@ -1,0 +1,1 @@
+This repository is mainly a repetition of this study: Mancini, F., Zhang, S., & Seymour, B. (2022). Computational and neural mechanisms of statistical pain learning. Nature Communications, 13(1), 6613. https://doi.org/10.1038/s41467-022-34283-9. especially the fMRI data analysis and modeling part.
