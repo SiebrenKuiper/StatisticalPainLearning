@@ -5554,3 +5554,4 @@ Model/Lossfunc.py
 Model/RandomModel.py
 Model/__pycache__/__init__.cpython-312.pyc
 Model/__pycache__/Lossfunc.cpython-312.pyc
+fMRIFirstLevel.ipynb
