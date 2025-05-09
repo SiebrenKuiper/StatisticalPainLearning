@@ -1,35 +1,22 @@
 import numpy as np
+from scipy.stats import beta
 
-def FixedFreqModel(params, obs_p1, obs_p2, session, seq):
+def FixedFreqModel(params, obs_p2 , session, seq):
     """
-    功能：拟合固定频率模型
-    模型描述: 在整个实验中，被试认为刺激强度的频率以一定数值保持恒定的。
-    建模思路：
-    - 导入待估计参数，包括：
-        - p_h: 高疼痛刺激的恒定概率
-        - alpha: 概率预测的回归系数
-        - beta: session 的回归系数
-        - gamma: 残差+截距
-        - beta: 截距
-        - gamma: session 的影响
-    - 计算预测值 y_pred = alpha * p_pred + beta * session + gamma
-    - 计算均方误差 mse = np.mean((obs_p2 - y_pred) ** 2) 和 BIC= n * np.log(mse) + k * np.log(n)
-
-    :param obs_p1:低疼痛刺激的频率，由于与高疼痛刺激观测频率线性相关，未在模型中使用。
-    :param obs_p2:高疼痛刺激的观测频率。
-    :param session:实验中的session，一般有5个seession。
-    :param params:
-    """
-    p_h, alpha, beta, gamma = params
+    认为刺激的频率遵循beta分布  
+    p(theta|y_1:t) = Beta(theta| N_1 + 1, N_2 + 1)  
+    利用链式法则和马尔可夫性质求出 似然函数 p(y_1:t|theta)  
+    p(y_1:t|theta)  
+        = p(y_1,y_2,...,y_t|theta)  
+        = p(y_1|theta) * p(y_2|y_1,theta) * ... * p(y_t|y_1,...,y_t-1,theta)    
+        = p(y_1|theta) * p(y_2|theta) * ... * p(y_t|theta)  
+    贝叶斯预测  
+    p(y_t+1|y1:t)   
+    = ∫ p(y_t+1|y1:t,theta)p(theta|y1:t)dtheta  
+    = ∫ p(y_t+1|y_t,theta)p(theta|y1:t)dtheta   
     
-    p_pred = np.where(seq == 2, p_h, 1 - p_h)
-    
-    y_pred = alpha * p_pred + beta * session + gamma
-    
-    residuals = obs_p2 - y_pred
-    mse = np.mean(residuals**2)
-    n = len(obs_p2)
-    n_params = len(params)
-    bic = n * np.log(mse) + n_params * np.log(n)
-    
-    return bic
+    "Window" is the previous n trials where the frequency of stimuli was estimated,     
+    "decay" is the previous n trials where the frequency of stimuli further from current trial was discounted following an exponential decay.       """
+    window,decay, b1, b2, b3, b4 = params
+    for t in range(len(obs_p2)):
+        theta = beta.pdf(np.sum(seq[(t-window):t] == 1) + 1,np.sum(seq[(t-window):t] == 2) +1)
